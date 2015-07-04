@@ -141,7 +141,7 @@ makeRepo root projectName version =
 
     -- actually build things
     cabal [ "sandbox", "init", "--sandbox=" ++ root ]
-    cabal [ "install", "-j" ]
+    cabal [ "install", "-j", "--enable-library-profiling", "--enable-executable-profiling" ]
 
     -- move back into the root
     setCurrentDirectory root
