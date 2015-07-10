@@ -45,62 +45,70 @@ import System.Process (rawSystem)
 
 -- NOTE: The order of the dependencies is also the build order,
 -- so do not just go alphebetizing things.
-configs :: Map.Map String [(String, String)]
+configs :: Map.Map String [(String, (String, String))]
 configs =
   Map.fromList
     [
       "master" =:
-        [ "elm-compiler" =: "master"
-        , "elm-package"  =: "master"
-        , "elm-make"     =: "master"
-        , "elm-reactor"  =: "master"
-        , "elm-repl"     =: "master"
+        [ "elm-compiler" =: ("elm-lang", "master")
+        , "elm-package"  =: ("elm-lang", "master")
+        , "elm-make"     =: ("elm-lang", "master")
+        , "elm-reactor"  =: ("elm-lang", "master")
+        , "elm-repl"     =: ("elm-lang", "master")
         ]
     ,
+      "tco" =:
+        [ "elm-compiler" =: ("JoeyEremondi", "master")
+        , "elm-package"  =: ("elm-lang", "master")
+        , "elm-make"     =: ("JoeyEremondi", "master")
+        , "elm-reactor"  =: ("elm-lang", "master")
+        , "elm-repl"     =: ("elm-lang", "master")
+        ]
+    ,      
       "0.15.1" =:
-        [ "elm-compiler" =: "0.15.1"
-        , "elm-package"  =: "0.5.1"
-        , "elm-make"     =: "0.2"
-        , "elm-reactor"  =: "0.3.2"
-        , "elm-repl"     =: "0.4.2"
+        [ "elm-compiler" =: ("elm-lang", "0.15.1")
+        , "elm-package"  =: ("elm-lang", "0.5.1")
+        , "elm-make"     =: ("elm-lang", "0.2")
+        , "elm-reactor"  =: ("elm-lang", "0.3.2")
+        , "elm-repl"     =: ("elm-lang", "0.4.2")
         ]
     ,
       "0.15" =:
-        [ "elm-compiler" =: "0.15"
-        , "elm-package"  =: "0.5"
-        , "elm-make"     =: "0.1.2"
-        , "elm-reactor"  =: "0.3.1"
-        , "elm-repl"     =: "0.4.1"
+        [ "elm-compiler" =: ("elm-lang", "0.15")
+        , "elm-package"  =: ("elm-lang", "0.5")
+        , "elm-make"     =: ("elm-lang", "0.1.2")
+        , "elm-reactor"  =: ("elm-lang", "0.3.1")
+        , "elm-repl"     =: ("elm-lang", "0.4.1")
         ]
     ,
       "0.14.1" =:
-        [ "elm-compiler" =: "0.14.1"
-        , "elm-package"  =: "0.4"
-        , "elm-make"     =: "0.1.1"
-        , "elm-reactor"  =: "0.3"
-        , "elm-repl"     =: "0.4"
+        [ "elm-compiler" =: ("elm-lang", "0.14.1")
+        , "elm-package"  =: ("elm-lang", "0.4")
+        , "elm-make"     =: ("elm-lang", "0.1.1")
+        , "elm-reactor"  =: ("elm-lang", "0.3")
+        , "elm-repl"     =: ("elm-lang", "0.4")
         ]
     ,
       "0.14" =:
-        [ "elm-compiler" =: "0.14"
-        , "elm-package"  =: "0.2"
-        , "elm-make"     =: "0.1"
-        , "elm-reactor"  =: "0.2"
-        , "elm-repl"     =: "0.4"
+        [ "elm-compiler" =: ("elm-lang", "0.14")
+        , "elm-package"  =: ("elm-lang", "0.2")
+        , "elm-make"     =: ("elm-lang", "0.1")
+        , "elm-reactor"  =: ("elm-lang", "0.2")
+        , "elm-repl"     =: ("elm-lang", "0.4")
         ]
     ,
       "0.13" =:
-        [ "Elm"         =: "0.13"
-        , "elm-reactor" =: "0.1"
-        , "elm-repl"    =: "0.3"
-        , "elm-get"     =: "0.1.3"
+        [ "Elm"         =: ("elm-lang", "0.13")
+        , "elm-reactor" =: ("elm-lang", "0.1")
+        , "elm-repl"    =: ("elm-lang", "0.3")
+        , "elm-get"     =: ("elm-lang", "0.1.3")
         ]
     ,
       "0.12.3" =:
-        [ "Elm"        =: "0.12.3"
-        , "elm-server" =: "0.11.0.1"
-        , "elm-repl"   =: "0.2.2.1"
-        , "elm-get"    =: "0.1.2"
+        [ "Elm"        =: ("elm-lang", "0.12.3")
+        , "elm-server" =: ("elm-lang", "0.11.0.1")
+        , "elm-repl"   =: ("elm-lang", "0.2.2.1")
+        , "elm-get"    =: ("elm-lang", "0.1.2")
         ]
     ]
 
@@ -122,7 +130,7 @@ main =
            exitFailure
 
 
-makeRepos :: FilePath -> [(String, String)] -> IO ()
+makeRepos :: FilePath -> [(String, (String, String))] -> IO ()
 makeRepos artifactDirectory repos =
  do createDirectoryIfMissing True artifactDirectory
     setCurrentDirectory artifactDirectory
@@ -131,10 +139,10 @@ makeRepos artifactDirectory repos =
     mapM_ (uncurry (makeRepo root)) repos
 
 
-makeRepo :: FilePath -> String -> String -> IO ()
-makeRepo root projectName version =
+makeRepo :: FilePath -> String -> (String, String) -> IO ()
+makeRepo root projectName (userName, version) =
  do  -- get the right version of the repo
-    git [ "clone", "https://github.com/elm-lang/" ++ projectName ++ ".git" ]
+    git [ "clone", "https://github.com/" ++ userName ++ "/" ++ projectName ++ ".git" ]
     setCurrentDirectory projectName
     git [ "checkout", version ]
     git [ "pull" ]
